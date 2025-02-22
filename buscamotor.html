@@ -1,0 +1,379 @@
+<!-- Formulário Principal -->
+<div class="search-box">
+    <!-- Check-In -->
+    <div class="field">
+        <label for="dataCheckIn">Check-In</label>
+        <input type="date" id="dataCheckIn">
+    </div>
+    <!-- Check-Out -->
+    <div class="field">
+        <label for="dataCheckOut">Check-Out</label>
+        <input type="date" id="dataCheckOut">
+    </div>
+    <!-- Hóspedes (clicável para abrir popup) -->
+    <div class="field" onclick="openGuestPopup()">
+        <label>Hóspedes</label>
+        <div id="guestDisplay" class="guest-display">2 Adultos • 0 Crianças</div>
+    </div>
+    <!-- Código Promocional -->
+    <div class="field">
+        <label for="promotionalCode">Código Promocional</label>
+        <input type="text" id="promotionalCode">
+    </div>
+    <!-- Botão Buscar -->
+    <div class="field">
+        <button class="small-btn" onclick="searchReservation()">Buscar</button>
+    </div>
+</div>
+
+<!-- Popup para seleção de hóspedes -->
+<div id="guestPopup" class="popup">
+    <div class="popup-content">
+        <div class="popup-item">
+            <span>Adultos</span>
+            <div class="counter">
+                <button onclick="changeQuantity('adultos', -1)">-</button>
+                <span id="quantityAdultos">2</span>
+                <button onclick="changeQuantity('adultos', 1)">+</button>
+            </div>
+        </div>
+        <div class="popup-item">
+            <span>Crianças</span>
+            <div class="counter">
+                <button onclick="changeQuantity('criancas', -1)">-</button>
+                <span id="quantityCriancas">0</span>
+                <button onclick="changeQuantity('criancas', 1)">+</button>
+            </div>
+        </div>
+
+        <!-- Container para as idades das crianças (agora dentro do guestPopup) -->
+        <div id="childAgesContainer" style="display: none; margin-top: 10px;"></div>
+
+        <!-- Agora o botão "Confirmar" verifica se todas as idades foram preenchidas antes de fechar -->
+        <button class="small-btn-search-box" onclick="closeGuestPopup()">Confirmar</button>
+    </div>
+</div>
+
+<!-- Modal para seleção das idades das crianças -->
+<div id="childAgePopup" class="child-modal" onclick="if(event.target===this){ closeChildAgePopup(); }">
+    <div class="child-modal-content">
+        <h3>Idade das Crianças</h3>
+        <div id="childAgesContainer"></div>
+        <button class="small-btn-search-box" onclick="closeChildAgePopup()">Confirmar</button>
+    </div>
+</div>
+
+<script>
+    // Define datas padrão: Check-In = amanhã, Check-Out = +2 dias
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const dayAfter = new Date(today);
+        dayAfter.setDate(today.getDate() + 2);
+        document.getElementById("dataCheckIn").value = formatDate(tomorrow);
+        document.getElementById("dataCheckOut").value = formatDate(dayAfter);
+    });
+
+    function formatDate(date) {
+        const d = new Date(date),
+            month = String(d.getMonth() + 1).padStart(2, "0"),
+            day = String(d.getDate()).padStart(2, "0"),
+            year = d.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+
+    // Abre o popup de hóspedes
+    function openGuestPopup() {
+        document.getElementById("guestPopup").style.display = "flex";
+    }
+
+    // Fecha o popup de hóspedes apenas se todas as idades forem preenchidas e atualiza o display
+    function closeGuestPopup() {
+        const criancas = parseInt(document.getElementById("quantityCriancas").textContent, 10);
+        let guestText = document.getElementById("quantityAdultos").textContent + " Adultos";
+
+        if (criancas > 0) {
+            const ageInputs = document.querySelectorAll(".child-age");
+            let allAgesFilled = true;
+            let ages = [];
+
+            ageInputs.forEach(input => {
+                const ageValue = input.value.trim();
+                if (ageValue === "") {
+                    allAgesFilled = false;
+                } else {
+                    ages.push(ageValue);
+                }
+            });
+
+            if (!allAgesFilled) {
+                alert("Por favor, preencha todas as idades das crianças antes de continuar.");
+                return;
+            }
+
+            guestText += ` • ${criancas} Crianças`;
+        } else {
+            guestText += ` • 0 Crianças`;
+        }
+
+        document.getElementById("guestDisplay").textContent = guestText;
+        document.getElementById("guestPopup").style.display = "none";
+    }
+
+    // Altera a quantidade de adultos ou crianças e exibe instantaneamente os campos de idade
+    function changeQuantity(type, delta) {
+        const span = document.getElementById("quantity" + capitalize(type));
+        let qty = parseInt(span.textContent, 10) + delta;
+
+        if (type === "adultos") {
+            if (qty < 1) qty = 1;
+            if (qty > 10) qty = 10;
+        } else if (type === "criancas") {
+            if (qty < 0) qty = 0;
+            if (qty > 10) qty = 10;
+        }
+
+        span.textContent = qty;
+        if (type === "criancas") {
+            updateChildAgeFields(qty);
+        }
+    }
+
+    // Atualiza os campos de idade das crianças dentro do guestPopup
+    function updateChildAgeFields(numChildren) {
+        const container = document.getElementById("childAgesContainer");
+        container.innerHTML = ""; // Limpa os campos antes de adicionar novos
+
+        if (numChildren > 0) {
+            container.style.display = "block";
+            for (let i = 1; i <= numChildren; i++) {
+                const div = document.createElement("div");
+                div.classList.add("child-age-field");
+                const label = document.createElement("label");
+                label.textContent = `Idade da Criança ${i}`;
+                const input = document.createElement("input");
+                input.type = "number";
+                input.min = "0";
+                input.max = "17";
+                input.placeholder = "Digite a idade";
+                input.classList.add("child-age");
+                input.setAttribute("required", "true"); // Torna o campo obrigatório
+                div.appendChild(label);
+                div.appendChild(input);
+                container.appendChild(div);
+            }
+        } else {
+            container.style.display = "none";
+        }
+    }
+
+    // Função para realizar a busca
+    function searchReservation() {
+        const baseUrl = "https://book.bitzsoftwares.com.br/cc8309dc-d9e8-4202-b29b-1ff0dea2426f";
+        const dataCheckIn = document.getElementById("dataCheckIn").value;
+        const dataCheckOut = document.getElementById("dataCheckOut").value;
+        const adultos = document.getElementById("quantityAdultos").textContent;
+        const criancas = parseInt(document.getElementById("quantityCriancas").textContent, 10);
+        const promo = document.getElementById("promotionalCode").value;
+
+        let queryParams = `?dataCheckIn=${dataCheckIn}&dataCheckOut=${dataCheckOut}&adultos=${adultos}&criancas=${criancas}`;
+
+        if (criancas > 0) {
+            const ageInputs = document.querySelectorAll(".child-age");
+            let ages = [];
+            let allAgesFilled = true;
+
+            ageInputs.forEach(input => {
+                const ageValue = input.value.trim();
+                if (ageValue === "") {
+                    allAgesFilled = false;
+                } else {
+                    ages.push(ageValue);
+                }
+            });
+
+            if (!allAgesFilled) {
+                alert("Por favor, preencha todas as idades das crianças antes de continuar.");
+                return;
+            }
+
+            queryParams += `&idadeCriancas=[${ages.join(",")}]`;
+        }
+
+        if (promo) {
+            queryParams += `&promotionalCode=${encodeURIComponent(promo)}`;
+        }
+
+        window.open(baseUrl + queryParams, "_blank");
+    }
+
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+</script>
+
+<style>
+    /* Formulário Principal */
+    .search-box {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field label {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .search-box input,
+    .search-box button,
+    .guest-display {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .guest-display {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .search-box button {
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    /* Popup de Hóspedes */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -30%);
+        background: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .popup-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .counter {
+        margin-left: 1rem;
+    }
+
+    .counter button {
+        width: 30px;
+        height: 30px;
+        font-size: 26px;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 15px 6px !important;
+        line-height: 0px;
+    }
+
+    .counter span {
+        font-size: 18px;
+        margin: 0 4px;
+    }
+
+    .small-btn-search-box {
+        padding: 10px !important;
+        font-size: 12px;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    .small-btn-search-box:hover {
+        background: #0056b3;
+    }
+
+    /* Modal de Idade das Crianças */
+    .child-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
+    .child-modal-content {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        width: 300px;
+    }
+
+    .child-modal-content h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .child-age-field {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .child-age-field label {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .child-age-field input {
+        padding: 4px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+        .search-box {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
