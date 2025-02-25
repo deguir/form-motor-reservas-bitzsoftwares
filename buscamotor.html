@@ -1,28 +1,26 @@
-<!-- Formulário Principal -->
-<div class="search-box">
-    <!-- Check-In -->
-    <div class="field">
-        <label for="dataCheckIn">Check-In</label>
-        <input type="date" id="dataCheckIn">
-    </div>
-    <!-- Check-Out -->
-    <div class="field">
-        <label for="dataCheckOut">Check-Out</label>
-        <input type="date" id="dataCheckOut">
-    </div>
-    <!-- Hóspedes (clicável para abrir popup) -->
-    <div class="field" onclick="openGuestPopup()">
-        <label>Hóspedes</label>
-        <div id="guestDisplay" class="guest-display">2 Adultos • 0 Crianças</div>
-    </div>
-    <!-- Código Promocional -->
-    <div class="field">
-        <label for="promotionalCode">Código Promocional</label>
-        <input type="text" id="promotionalCode">
-    </div>
-    <!-- Botão Buscar -->
-    <div class="field">
-        <button class="small-btn" onclick="searchReservation()">Buscar</button>
+<!-- Motor reservas -->
+<div class="motor-reservas">
+    <div class="search-box">
+        <!-- Check-In -->
+        <div class="field">
+            <input type="date" id="dataCheckIn">
+        </div>
+        <!-- Check-Out -->
+        <div class="field">
+            <input type="date" id="dataCheckOut">
+        </div>
+        <!-- Hóspedes (clicável para abrir popup) -->
+        <div class="field" onclick="openGuestPopup()">
+            <div id="guestDisplay" class="guest-display">2 Adultos • 0 Criança</div>
+        </div>
+        <!-- Código Promocional -->
+        <div class="field">
+            <input type="text" id="promotionalCode" placeholder="Código Promocional">
+        </div>
+        <!-- Botão Buscar -->
+        <div class="field">
+            <button class="small-btn" onclick="searchReservation()">Buscar</button>
+        </div>
     </div>
 </div>
 
@@ -112,9 +110,13 @@
                 return;
             }
 
-            guestText += ` • ${criancas} Crianças`;
+            if (criancas === 1) {
+                guestText += ` • 1 Criança`;
+            } else {
+                guestText += ` • ${criancas} Crianças`;
+            }
         } else {
-            guestText += ` • 0 Crianças`;
+            guestText += ` • 0 Criança`;
         }
 
         document.getElementById("guestDisplay").textContent = guestText;
@@ -214,14 +216,20 @@
 </script>
 
 <style>
-    /* Formulário Principal */
+    .motor-reservas {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
     .search-box {
         display: flex;
         gap: 10px;
-        align-items: flex-end;
+        justify-content: center;
+        align-items: center;
         flex-wrap: wrap;
-        width: 100%;
-        box-sizing: border-box;
+        width: 1000px;
     }
 
     .field {
