@@ -37,7 +37,7 @@
     <div class="popup-content">
 
         <!-- Idades das crianças -->
-        <div id="childAgesContainer" style="display: none; padding-top: 10px;"></div>
+        <div id="childAgesContainer" style="display: none;"></div>
 
         <div class="popup-item">
             <span>Adultos</span>
@@ -142,7 +142,7 @@
             if (qty > 10) qty = 10;
         } else if (type === "criancas") {
             if (qty < 0) qty = 0;
-            if (qty > 10) qty = 10;
+            if (qty > 7) qty = 7;
         }
 
         span.textContent = qty;
@@ -313,7 +313,6 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        padding-bottom: 10px;
     }
 
     .search-box button {
