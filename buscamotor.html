@@ -35,6 +35,10 @@
 <!-- Popup para seleção de hóspedes -->
 <div id="guestPopup" class="popup">
     <div class="popup-content">
+
+        <!-- Idades das crianças -->
+        <div id="childAgesContainer" style="display: none; padding-top: 10px;"></div>
+
         <div class="popup-item">
             <span>Adultos</span>
             <div class="counter">
@@ -51,9 +55,6 @@
                 <button onclick="changeQuantity('criancas', 1)">+</button>
             </div>
         </div>
-
-        <!-- Container para as idades das crianças (agora dentro do guestPopup) -->
-        <div id="childAgesContainer" style="display: none; margin-top: 10px;"></div>
 
         <!-- Agora o botão "Confirmar" verifica se todas as idades foram preenchidas antes de fechar -->
         <button class="small-btn-search-box" onclick="closeGuestPopup()">Confirmar</button>
@@ -308,6 +309,13 @@
         text-align: center;
     }
 
+    #childAgesContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+
     .search-box button {
         border: none;
         cursor: pointer;
@@ -324,7 +332,7 @@
         position: fixed;
         bottom: 20px;
         left: 50%;
-        transform: translate(-50%, -30%);
+        transform: translate(-50%, -50px);
         background: #fff;
         padding: 10px;
         border-radius: 4px;
@@ -342,6 +350,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        font-size: 16px;
     }
 
     .counter {
