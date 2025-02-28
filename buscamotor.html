@@ -1,19 +1,19 @@
 <!-- Motor reservas -->
 <div class="motor-reservas">
     <div class="search-box">
-        <div class="field-dates">
+        <div class="field-dates" id="divDates">
             <!-- Check-In -->
             <div class="field">
                 <input type="text" id="dataRange" placeholder="Selecione um intervalo de datas">
             </div>
         </div>
-        <div class="field-guests">
+        <div class="field-guests" id="divGuestDisplay">
             <!-- Hóspedes (clicável para abrir popup) -->
             <div class="field" onclick="openGuestPopup()">
                 <div id="guestDisplay" class="guest-display">2 Adultos • 0 Criança</div>
             </div>
         </div>
-        <div class="field-code">
+        <div class="field-code" id="divPromotionalCode">
             <!-- Código Promocional -->
             <div class="field">
                 <input type="text" id="promotionalCode" placeholder="Código Promocional">
@@ -51,8 +51,6 @@
                 <button onclick="changeQuantity('criancas', 1)">+</button>
             </div>
         </div>
-
-        <!-- Agora o botão "Confirmar" verifica se todas as idades foram preenchidas antes de fechar -->
         <button class="small-btn-search-box" onclick="closeGuestPopup()">Confirmar</button>
     </div>
 </div>
@@ -67,11 +65,16 @@
 </div>
 
 <script>
-    function formatDate(date) {
-        const d = new Date(date),
-            day = String(d.getDate()).padStart(2, "0"),
-            month = String(d.getMonth() + 1).padStart(2, "0"),
-            year = d.getFullYear();
+    function formatDate(dateString) {
+
+        const parts = dateString.split("/");
+
+        if (parts.length !== 3) return "";
+
+        const day = parts[0];
+        const month = parts[1];
+        const year = parts[2];
+
         return `${year}/${month}/${day}`;
     }
 
@@ -304,11 +307,10 @@
         padding: 10px 20px;
         border: transparent;
         border-radius: 4px;
-        font-size: 16px;
+        font-size: 15px;
         box-sizing: border-box;
         color: white;
         background-color: transparent;
-        width: 230px;
     }
 
     .search-box input::placeholder {
@@ -348,7 +350,7 @@
         padding: 10px;
         border-radius: 4px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
+        z-index: 9999;
     }
 
     .popup-content {
@@ -451,10 +453,31 @@
         box-sizing: border-box;
     }
 
-    @media (max-width: 768px) {
-        .search-box {
-            flex-direction: column;
-            align-items: flex-start;
+    @media (min-width: 1100px) {
+
+        .search-box input,
+        .search-box button,
+        .guest-display {
+            min-width: 230px;
+        }
+    }
+
+    @media (max-width: 500px) {
+
+        #divDates,
+        #divPromotionalCode,
+        #divGuestDisplay {
+            display: none;
+        }
+
+        .field-buttonBuscar {
+            border-right: none;
+        }
+    }
+
+    @media (min-width: 501px) and (max-width: 800px) {
+        #divPromotionalCode {
+            display: none;
         }
     }
 </style>
