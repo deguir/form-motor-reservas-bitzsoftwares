@@ -6,3 +6,5 @@
   - Conforme a quantidade de crianças informada, exibe o campo para escolher a idade de cada um.
   - Permitido escolher até 10 adultos e 10 crianças.
 - Código Promocional.
+
+### Data do check-in e check-out agora em range, responsivo funcionando.
