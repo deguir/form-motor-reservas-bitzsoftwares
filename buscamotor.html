@@ -4,11 +4,7 @@
         <div class="field-dates">
             <!-- Check-In -->
             <div class="field">
-                <input type="date" id="dataCheckIn">
-            </div>
-            <!-- Check-Out -->
-            <div class="field">
-                <input type="date" id="dataCheckOut">
+                <input type="text" id="dataRange" placeholder="Selecione um intervalo de datas">
             </div>
         </div>
         <div class="field-guests">
@@ -71,65 +67,16 @@
 </div>
 
 <script>
-    // Define datas padrão: Check-In = amanhã, Check-Out = +2 dias
-    document.addEventListener("DOMContentLoaded", function () {
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        const dayAfter = new Date(today);
-        dayAfter.setDate(today.getDate() + 3);
-        document.getElementById("dataCheckIn").value = formatDate(tomorrow);
-        document.getElementById("dataCheckOut").value = formatDate(dayAfter);
-    });
-
     function formatDate(date) {
         const d = new Date(date),
-            month = String(d.getMonth() + 1).padStart(2, "0"),
             day = String(d.getDate()).padStart(2, "0"),
+            month = String(d.getMonth() + 1).padStart(2, "0"),
             year = d.getFullYear();
-        return `${year}-${month}-${day}`;
+        return `${year}/${month}/${day}`;
     }
 
-    // Abre o popup de hóspedes
-    function openGuestPopup() {
-        document.getElementById("guestPopup").style.display = "flex";
-    }
-
-    // Fecha o popup de hóspedes apenas se todas as idades forem preenchidas e atualiza o display
-    function closeGuestPopup() {
-        const criancas = parseInt(document.getElementById("quantityCriancas").textContent, 10);
-        let guestText = document.getElementById("quantityAdultos").textContent + " Adultos";
-
-        if (criancas > 0) {
-            const ageInputs = document.querySelectorAll(".child-age");
-            let allAgesFilled = true;
-            let ages = [];
-
-            ageInputs.forEach(input => {
-                const ageValue = input.value.trim();
-                if (ageValue === "") {
-                    allAgesFilled = false;
-                } else {
-                    ages.push(ageValue);
-                }
-            });
-
-            if (!allAgesFilled) {
-                alert("Por favor, preencha todas as idades das crianças antes de continuar.");
-                return;
-            }
-
-            if (criancas === 1) {
-                guestText += ` • 1 Criança`;
-            } else {
-                guestText += ` • ${criancas} Crianças`;
-            }
-        } else {
-            guestText += ` • 0 Criança`;
-        }
-
-        document.getElementById("guestDisplay").textContent = guestText;
-        document.getElementById("guestPopup").style.display = "none";
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     // Altera a quantidade de adultos ou crianças e exibe instantaneamente os campos de idade
@@ -179,16 +126,62 @@
         }
     }
 
+    function openGuestPopup() {
+        document.getElementById("guestPopup").style.display = "flex";
+    }
+
+    // Fecha o popup de hóspedes apenas se todas as idades forem preenchidas e atualiza o display
+    function closeGuestPopup() {
+        const criancas = parseInt(document.getElementById("quantityCriancas").textContent, 10);
+        let guestText = document.getElementById("quantityAdultos").textContent + " Adultos";
+
+        if (criancas > 0) {
+            const ageInputs = document.querySelectorAll(".child-age");
+            let allAgesFilled = true;
+            let ages = [];
+
+            ageInputs.forEach(input => {
+                const ageValue = input.value.trim();
+                if (ageValue === "") {
+                    allAgesFilled = false;
+                } else {
+                    ages.push(ageValue);
+                }
+            });
+
+            if (!allAgesFilled) {
+                alert("Por favor, preencha todas as idades das crianças antes de continuar.");
+                return;
+            }
+
+            if (criancas === 1) {
+                guestText += ` • 1 Criança`;
+            } else {
+                guestText += ` • ${criancas} Crianças`;
+            }
+        } else {
+            guestText += ` • 0 Criança`;
+        }
+
+        document.getElementById("guestDisplay").textContent = guestText;
+        document.getElementById("guestPopup").style.display = "none";
+    }
+
     // Função para realizar a busca
     function searchReservation() {
         const baseUrl = "https://book.bitzsoftwares.com.br/cc8309dc-d9e8-4202-b29b-1ff0dea2426f";
-        const dataCheckIn = document.getElementById("dataCheckIn").value;
-        const dataCheckOut = document.getElementById("dataCheckOut").value;
+
         const adultos = document.getElementById("quantityAdultos").textContent;
         const criancas = parseInt(document.getElementById("quantityCriancas").textContent, 10);
         const promo = document.getElementById("promotionalCode").value;
 
-        let queryParams = `?dataCheckIn=${dataCheckIn}&dataCheckOut=${dataCheckOut}&adultos=${adultos}&criancas=${criancas}`;
+        const dataRange = document.getElementById("dataRange").value.trim();
+        const dates = dataRange.split(" até ").map(date => date.trim());
+
+        const dataCheckInFormatted = formatDate(dates[0]);
+        const dataCheckOutFormatted = formatDate(dates[1]);
+
+        let queryParams = `?dataCheckIn=${dataCheckInFormatted}&dataCheckOut=${dataCheckOutFormatted}&adultos=${adultos}&criancas=${criancas}`;
 
         if (criancas > 0) {
             const ageInputs = document.querySelectorAll(".child-age");
@@ -219,9 +212,28 @@
         window.open(baseUrl + queryParams, "_blank");
     }
 
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    // Define datas padrão: Check-In = amanhã, Check-Out = +2 dias
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr("#dataRange", {
+            mode: "range",
+            dateFormat: "d/m/Y",
+            locale: "pt",
+            showMonths: 2,
+            minDate: "today"
+        });
+
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const dayAfter = new Date(today);
+        dayAfter.setDate(today.getDate() + 3);
+
+        function formatDateBR(date) {
+            return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+        }
+
+        document.getElementById("dataRange").setAttribute("placeholder", `${formatDateBR(tomorrow)} a ${formatDateBR(dayAfter)}`);
+    });
 </script>
 
 <style>
@@ -296,7 +308,7 @@
         box-sizing: border-box;
         color: white;
         background-color: transparent;
-
+        width: 230px;
     }
 
     .search-box input::placeholder {
