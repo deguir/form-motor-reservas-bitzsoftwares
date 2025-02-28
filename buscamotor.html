@@ -222,20 +222,26 @@
             dateFormat: "d/m/Y",
             locale: "pt",
             showMonths: 2,
-            minDate: "today"
+            minDate: "today",
+            onReady: function (selectedDates, dateStr, instance) {
+                // Define o valor padrão: amanhã e +2 dias
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const dayAfter = new Date(today);
+                dayAfter.setDate(today.getDate() + 3);
+
+                function formatDateBR(date) {
+                    return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+                }
+
+                const defaultRange = `${formatDateBR(tomorrow)} até ${formatDateBR(dayAfter)}`;
+
+                // Atualiza o campo de dataRange
+                instance.setDate([tomorrow, dayAfter]); // Define visualmente no flatpickr
+                document.getElementById("dataRange").value = defaultRange; // Define o texto no input
+            }
         });
-
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        const dayAfter = new Date(today);
-        dayAfter.setDate(today.getDate() + 3);
-
-        function formatDateBR(date) {
-            return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-        }
-
-        document.getElementById("dataRange").setAttribute("placeholder", `${formatDateBR(tomorrow)} a ${formatDateBR(dayAfter)}`);
     });
 </script>
 
@@ -462,7 +468,8 @@
         }
     }
 
-    @media (max-width: 500px) {
+    /* Resolução até o iPad Air 5 */
+    @media (max-width: 825px) {
 
         #divDates,
         #divPromotionalCode,
@@ -472,12 +479,6 @@
 
         .field-buttonBuscar {
             border-right: none;
-        }
-    }
-
-    @media (min-width: 501px) and (max-width: 800px) {
-        #divPromotionalCode {
-            display: none;
         }
     }
 </style>
